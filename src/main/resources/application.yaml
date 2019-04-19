@@ -1,0 +1,14 @@
+app:
+  host: localhost
+  context: /user/v1
+  port: 8080
+
+aws:
+  dynamodb:
+    prefix: dev
+    region: us-west-1
+    host: localhost
+    port: 8000
+    parallelism: 2
+    access-key: access-key
+    secret-key: secret-key
