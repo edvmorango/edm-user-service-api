@@ -53,7 +53,8 @@ libraryDependencies ++=  Seq(
 
 libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-dsl",
-  "org.http4s" %% "http4s-circe"
+  "org.http4s" %% "http4s-circe",
+  "org.http4s" %% "http4s-blaze-server"
 ).map(_ % http4sVersion)
 
 

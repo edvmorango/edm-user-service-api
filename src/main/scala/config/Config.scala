@@ -24,7 +24,7 @@ object ConfigLoader {
 
     val path = Path of ClassLoader.getSystemResource("application.yaml").getPath
 
-    Try(loadYamlsOrThrow[Config](path)).toEither
+    Try(loadYamlOrThrow[Config](path)).toEither
 
   }
 
