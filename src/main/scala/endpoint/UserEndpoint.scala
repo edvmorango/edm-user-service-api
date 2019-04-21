@@ -7,18 +7,17 @@ import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
 import scalaz.zio.TaskR
 import scalaz.zio.interop.catz._
-import service.Health
+import service.User
 
-final class HealthEndpoint[R <: Health](rootUri: String)
-    extends JsonSupport[R] {
+final class UserEndpoint[R <: User](rootUri: String) extends JsonSupport[R] {
 
-  type HealthTask[A] = TaskR[R, A]
+  type UserTask[A] = TaskR[R, A]
 
-  val dsl: Http4sDsl[HealthTask] = Http4sDsl[HealthTask]
+  val dsl: Http4sDsl[UserTask] = Http4sDsl[UserTask]
 
   import dsl._
 
-  def endpoints: HttpRoutes[HealthTask] = HttpRoutes.of[HealthTask] {
+  def endpoints: HttpRoutes[UserTask] = HttpRoutes.of[UserTask] {
 
     case GET -> Root / `rootUri` => Ok(HealthResponse())
 
