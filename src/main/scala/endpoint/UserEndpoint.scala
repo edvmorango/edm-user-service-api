@@ -7,9 +7,10 @@ import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
 import scalaz.zio.TaskR
 import scalaz.zio.interop.catz._
-import service.User
+import service.UserModule
 
-final class UserEndpoint[R <: User](rootUri: String) extends JsonSupport[R] {
+final class UserEndpoint[R <: UserModule](rootUri: String)
+    extends JsonSupport[R] {
 
   type UserTask[A] = TaskR[R, A]
 

@@ -12,11 +12,11 @@ import scalaz.zio.console.{Console, _}
 import scalaz.zio.interop.catz._
 import scalaz.zio.scheduler.Scheduler
 import scalaz.zio.{App, TaskR, ZIO}
-import service.{Health, HealthLive, User, UserLive}
+import service.{Health, HealthLive, UserLive, UserModule}
 
 object Main extends App {
 
-  type AppEnvironment = Console with Clock with Health with User
+  type AppEnvironment = Console with Clock with Health with UserModule
   type AppTask[A] = TaskR[AppEnvironment, A]
 
   def createRoutes(basePath: String) = {
@@ -51,7 +51,7 @@ object Main extends App {
               .drain
           }
           .provideSome[Environment] { base =>
-            new Console with Clock with Health with User {
+            new Console with Clock with Health with UserModule {
 
               override val scheduler: Scheduler.Service[Any] = base.scheduler
               override val console: Console.Service[Any] = base.console
@@ -60,15 +60,6 @@ object Main extends App {
               override def user = UserLive
             }
           }
-
-//        _ <- server.provideSome[Environment] { base =>
-//          new Clock with Console with HealthService with UserService {
-//
-//            override val console: Console.Service[Any] = base.console
-//            override val clock: Clock.Service[Any] = base.clock
-//          }
-//        }
-
       } yield server
 
     program.foldM(e => putStrLn(e.getMessage) *> ZIO.succeed(1),

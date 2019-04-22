@@ -1,25 +1,26 @@
 package service
 
+import domain.User
 import scalaz.zio.ZIO
 
-trait User {
+trait UserModule {
 
-  def user: User.Service
+  def user: UserModule.Service
 
 }
 
-object User {
+object UserModule {
 
   trait Service {
 
-    def createUser(user: User): ZIO[Any, Nothing, Unit]
+    def createUser(user: User): ZIO[Any, Nothing, User]
 
   }
 
 }
 
-object UserLive extends User.Service {
+object UserLive extends UserModule.Service {
 
-  def createUser(user: User): ZIO[Any, Nothing, Unit] = ???
+  def createUser(user: User): ZIO[Any, Nothing, User] = ???
 
 }
