@@ -1,6 +1,7 @@
 package service
 
 import domain.User
+import interop.FUuid
 import repository.UserRepository
 import scalaz.zio.ZIO
 import service.UserModule.Service
@@ -20,24 +21,30 @@ object UserModule {
     def findByUuid(uuid: String): ZIO[R, Throwable, Option[User]]
 
   }
-//
-//  def service[R <: UserRepository[R]](
-//      userRepository: UserRepository[]): Service[R] = new Service[R] {
-//
-//    override def createUser(user: User): ZIO[R, Throwable, Unit] = ZIO.accessM(_.createUser(user))
-//
-//    override def findByUuid(uuid: String): ZIO[R, Throwable, Option[User]] = ZIO.accessM(_.findByUuid(uuid))
-//
-//  }
-
 }
 
 object UserServiceImpl extends Service[UserRepository] {
 
-  override def createUser(user: User): ZIO[UserRepository, Throwable, Unit] =
-    ???
+  override def createUser(user: User): ZIO[UserRepository, Throwable, Unit] = {
+
+    ZIO.accessM[UserRepository] { env =>
+      for {
+        userEmail <- env.userRepository.findByEmail(user.email)
+        _ <- userEmail match {
+          case Some(_) =>
+            ZIO.fail(new Exception(s"Email ${user.email} already exists."))
+          case None => ZIO.unit
+        }
+        uuid <- FUuid.getUUID()
+        _ <- env.userRepository createUser user.copy(uuid = Option(uuid))
+      } yield ()
+
+    }
+
+  }
 
   override def findByUuid(
-      uuid: String): ZIO[UserRepository, Throwable, Option[User]] = ???
+      uuid: String): ZIO[UserRepository, Throwable, Option[User]] =
+    ZIO.accessM(_.userRepository.findByUuid(uuid))
 
 }
