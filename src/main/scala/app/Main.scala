@@ -13,7 +13,7 @@ import scalaz.zio.console.{Console, _}
 import scalaz.zio.interop.catz._
 import scalaz.zio.scheduler.Scheduler
 import scalaz.zio.{App, TaskR, ZIO}
-import service.{Health, HealthLive, UserModule, UserServiceImpl}
+import service.{Health, HealthLive, UUID, UUIDGen, UserModule, UserServiceImpl}
 
 object Main extends App {
 
@@ -52,7 +52,7 @@ object Main extends App {
               .drain
           }
           .provideSome[Environment] { base =>
-            new Console with Clock with Health with UserRepository
+            new Console with Clock with Health with UserRepository with UUID
             with UserModule {
 
               override val scheduler: Scheduler.Service[Any] = base.scheduler
@@ -61,10 +61,12 @@ object Main extends App {
 
               override def health: Health.Service = HealthLive
 
+              override def uuidGen: UUID.Service = UUIDGen
+
               override val userRepository: UserRepository.Repository[Any] =
                 new UserRepositoryDynamoDB(dynamoDB)
 
-              override def user: UserModule.Service[UserRepository] =
+              override def user: UserModule.Service[UserRepository with UUID] =
                 UserServiceImpl
             }
           }

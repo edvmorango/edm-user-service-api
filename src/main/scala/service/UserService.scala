@@ -1,14 +1,13 @@
 package service
 
 import domain.User
-import interop.FUuid
 import repository.UserRepository
 import scalaz.zio.ZIO
 import service.UserModule.Service
 
 trait UserModule {
 
-  def user: UserModule.Service[UserRepository]
+  def user: UserModule.Service[UserRepository with UUID]
 
 }
 
@@ -16,18 +15,19 @@ object UserModule {
 
   trait Service[R] {
 
-    def createUser(user: User): ZIO[R, Throwable, Unit]
+    def createUser(user: User): ZIO[R, Throwable, User]
 
     def findByUuid(uuid: String): ZIO[R, Throwable, Option[User]]
 
   }
 }
 
-object UserServiceImpl extends Service[UserRepository] {
+object UserServiceImpl extends Service[UserRepository with UUID] {
 
-  override def createUser(user: User): ZIO[UserRepository, Throwable, Unit] = {
+  override def createUser(
+      user: User): ZIO[UserRepository with UUID, Throwable, User] = {
 
-    ZIO.accessM[UserRepository] { env =>
+    ZIO.accessM[UserRepository with UUID] { env =>
       for {
         userEmail <- env.userRepository.findByEmail(user.email)
         _ <- userEmail match {
@@ -35,9 +35,10 @@ object UserServiceImpl extends Service[UserRepository] {
             ZIO.fail(new Exception(s"Email ${user.email} already exists."))
           case None => ZIO.unit
         }
-        uuid <- FUuid.getUUID()
-        _ <- env.userRepository createUser user.copy(uuid = Option(uuid))
-      } yield ()
+        uuid <- env.uuidGen.genUUID()
+        fuser = user.copy(uuid = Option(uuid))
+        _ <- env.userRepository createUser fuser
+      } yield fuser
 
     }
 
