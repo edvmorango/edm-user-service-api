@@ -7,12 +7,13 @@ import endpoint.{HealthEndpoint, UserEndpoint}
 import org.http4s.implicits._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
+import repository.{DynamoDB, UserRepository, UserRepositoryDynamoDB}
 import scalaz.zio.clock.Clock
 import scalaz.zio.console.{Console, _}
 import scalaz.zio.interop.catz._
 import scalaz.zio.scheduler.Scheduler
 import scalaz.zio.{App, TaskR, ZIO}
-import service.{Health, HealthLive, UserLive, UserModule}
+import service.{Health, HealthLive, UserModule, UserServiceImpl}
 
 object Main extends App {
 
@@ -38,7 +39,7 @@ object Main extends App {
     val program =
       for {
         cfg <- ZIO.fromEither(ConfigLoader.load)
-//        _ <- putStr(cfg.toString)
+        dynamoDB: DynamoDB.Client = DynamoDB.instantiate(cfg.aws)
         httpApp = createRoutes(cfg.app.context)
         server <- ZIO
           .runtime[AppEnvironment]
@@ -51,13 +52,20 @@ object Main extends App {
               .drain
           }
           .provideSome[Environment] { base =>
-            new Console with Clock with Health with UserModule {
+            new Console with Clock with Health with UserRepository
+            with UserModule {
 
               override val scheduler: Scheduler.Service[Any] = base.scheduler
               override val console: Console.Service[Any] = base.console
               override val clock: Clock.Service[Any] = base.clock
-              override def health = HealthLive
-              override def user = UserLive
+
+              override def health: Health.Service = HealthLive
+
+              override val userRepository: UserRepository.Repository[Any] =
+                new UserRepositoryDynamoDB(dynamoDB)
+
+              override def user: UserModule.Service[UserRepository] =
+                UserServiceImpl
             }
           }
       } yield server
