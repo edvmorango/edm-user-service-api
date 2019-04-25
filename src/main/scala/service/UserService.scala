@@ -3,15 +3,11 @@ package service
 import domain.User
 import repository.UserRepository
 import scalaz.zio.ZIO
-import service.UserModule.Service
-
-trait UserModule {
-
-  def user: UserModule.Service[UserRepository with UUID]
-
-}
+import service.UserModule.{Service, UserServiceEnvironment}
 
 object UserModule {
+
+  type UserServiceEnvironment = UserRepository with UUID
 
   trait Service[R] {
 
@@ -20,15 +16,17 @@ object UserModule {
     def findByUuid(uuid: String): ZIO[R, Throwable, Option[User]]
 
   }
+
 }
 
-object UserServiceImpl extends Service[UserRepository with UUID] {
+object UserServiceImpl extends Service[UserServiceEnvironment] {
 
   override def createUser(
       user: User): ZIO[UserRepository with UUID, Throwable, User] = {
 
     ZIO.accessM[UserRepository with UUID] { env =>
       for {
+        _ <- ZIO.succeedLazy(println("Before fails"))
         userEmail <- env.userRepository.findByEmail(user.email)
         _ <- userEmail match {
           case Some(_) =>

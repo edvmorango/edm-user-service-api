@@ -13,11 +13,15 @@ import scalaz.zio.console.{Console, _}
 import scalaz.zio.interop.catz._
 import scalaz.zio.scheduler.Scheduler
 import scalaz.zio.{App, TaskR, ZIO}
-import service.{Health, HealthLive, UUID, UUIDGen, UserModule, UserServiceImpl}
+import service.{Health, HealthLive, UUID, UUIDGen}
 
 object Main extends App {
 
-  type AppEnvironment = Console with Clock with Health with UserModule
+  type AppEnvironment = Console
+    with Clock
+    with Health
+    with UserRepository
+    with UUID
   type AppTask[A] = TaskR[AppEnvironment, A]
 
   def createRoutes(basePath: String) = {
@@ -52,8 +56,7 @@ object Main extends App {
               .drain
           }
           .provideSome[Environment] { base =>
-            new Console with Clock with Health with UserRepository with UUID
-            with UserModule {
+            new Console with Clock with Health with UserRepository with UUID {
 
               override val scheduler: Scheduler.Service[Any] = base.scheduler
               override val console: Console.Service[Any] = base.console
@@ -66,8 +69,6 @@ object Main extends App {
               override val userRepository: UserRepository.Repository[Any] =
                 new UserRepositoryDynamoDB(dynamoDB)
 
-              override def user: UserModule.Service[UserRepository with UUID] =
-                UserServiceImpl
             }
           }
       } yield server

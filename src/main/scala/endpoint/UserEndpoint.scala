@@ -6,14 +6,16 @@ import endpoint.request.CreateUserRequest
 import io.circe.generic.auto._
 import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
+import repository.UserRepository
 import scalaz.zio.interop.catz._
 import scalaz.zio.{TaskR, ZIO}
-import service.UserModule
+import service.UUID
 
-final class UserEndpoint[R <: UserModule](rootUri: String)
+final class UserEndpoint[R <: UserRepository with UUID](rootUri: String)
     extends JsonSupport[R] {
 
   import request.UserRequestBridge._
+  import service.UserServiceImpl._
 
   type UserTask[A] = TaskR[R, A]
 
@@ -27,10 +29,10 @@ final class UserEndpoint[R <: UserModule](rootUri: String)
       case GET -> Root / `rootUri` / id => Ok(id)
 
       case req @ POST -> Root / `rootUri` =>
-        val value: ZIO[R, Throwable, User] =
+        val user: ZIO[R, Throwable, User] =
           req.as[CreateUserRequest].map(_.toDomain())
 
-        Created.apply(value)
+        Created apply user.flatMap(createUser)
 
     }
 
