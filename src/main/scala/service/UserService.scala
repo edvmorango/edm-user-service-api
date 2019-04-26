@@ -26,7 +26,6 @@ object UserServiceImpl extends Service[UserServiceEnvironment] {
 
     ZIO.accessM[UserRepository with UUID] { env =>
       for {
-        _ <- ZIO.succeedLazy(println("Before fails"))
         userEmail <- env.userRepository.findByEmail(user.email)
         _ <- userEmail match {
           case Some(_) =>

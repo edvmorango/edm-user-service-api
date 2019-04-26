@@ -32,8 +32,9 @@ final class UserEndpoint[R <: UserRepository with UUID](rootUri: String)
         val user: ZIO[R, Throwable, User] =
           req.as[CreateUserRequest].map(_.toDomain())
 
-        Created apply user.flatMap(createUser)
+        val xz = user.flatMap(createUser)
 
+        Created(xz)
     }
 
 }

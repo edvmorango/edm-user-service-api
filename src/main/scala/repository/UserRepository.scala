@@ -64,7 +64,7 @@ final class UserRepositoryDynamoDB(db: DynamoDB.Client)
 
     val op = for {
       _ <- table.put(user.toItem())
-      res <- table.get('id -> user.uuid.get)
+      res <- table.get('uuid -> user.uuid.get)
     } yield res.get
 
     for {
