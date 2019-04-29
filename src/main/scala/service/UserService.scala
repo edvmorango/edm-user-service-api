@@ -13,7 +13,7 @@ object UserModule {
 
     def createUser(user: User): ZIO[R, Throwable, User]
 
-    def findByUuid(uuid: String): ZIO[R, Throwable, Option[User]]
+    def findByEmail(email: String): ZIO[R, Throwable, Option[User]]
 
   }
 
@@ -41,8 +41,8 @@ object UserServiceImpl extends Service[UserServiceEnvironment] {
 
   }
 
-  override def findByUuid(
-      uuid: String): ZIO[UserRepository, Throwable, Option[User]] =
-    ZIO.accessM(_.userRepository.findByUuid(uuid))
+  override def findByEmail(
+      email: String): ZIO[UserRepository, Throwable, Option[User]] =
+    ZIO.accessM(_.userRepository.findByEmail(email))
 
 }
