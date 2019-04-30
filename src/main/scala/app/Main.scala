@@ -66,7 +66,7 @@ object Main extends App {
 
               override def uuidGen: UUID.Service = UUIDGen
 
-              override val userRepository: UserRepository.Repository[Any] =
+              override val userRepository: UserRepository.Repository =
                 new UserRepositoryDynamoDB(dynamoDB)
 
             }

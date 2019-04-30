@@ -42,6 +42,7 @@ lazy val pureConfigVersion =  "0.10.2"
 
 
 lazy val fuuidVersion = "0.2.0-M8"
+lazy val scalaTestVersion = "3.0.0"
 // Dependencies
 
 libraryDependencies ++=  Seq(
@@ -85,3 +86,5 @@ libraryDependencies ++= Seq(
 
 
 libraryDependencies += "io.chrisdavenport" %% "fuuid" % fuuidVersion
+
+libraryDependencies += "org.scalatest" %% "scalatest" % scalaTestVersion

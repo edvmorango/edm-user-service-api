@@ -3,9 +3,9 @@ package service
 import domain.User
 import repository.UserRepository
 import scalaz.zio.ZIO
-import service.UserModule.{Service, UserServiceEnvironment}
+import service.UserService.{Service, UserServiceEnvironment}
 
-object UserModule {
+object UserService {
 
   type UserServiceEnvironment = UserRepository with UUID
 

@@ -9,25 +9,24 @@ import scalaz.zio.ZIO
 
 trait UserRepository {
 
-  val userRepository: UserRepository.Repository[Any]
+  val userRepository: UserRepository.Repository
 
 }
 
 object UserRepository {
 
-  trait Repository[R] {
+  trait Repository {
 
-    def findByUuid(uuid: String): ZIO[R, Throwable, Option[User]]
+    def findByUuid(uuid: String): ZIO[Any, Throwable, Option[User]]
 
-    def findByEmail(email: String): ZIO[R, Throwable, Option[User]]
+    def findByEmail(email: String): ZIO[Any, Throwable, Option[User]]
 
-    def createUser(user: User): ZIO[R, Throwable, Unit]
+    def createUser(user: User): ZIO[Any, Throwable, Unit]
 
   }
 
 }
-final class UserRepositoryDynamoDB(db: DynamoDB.Client)
-    extends Repository[Any] {
+final class UserRepositoryDynamoDB(db: DynamoDB.Client) extends Repository {
 
   import com.gu.scanamo._
   import com.gu.scanamo.ops.ScanamoOpsA
