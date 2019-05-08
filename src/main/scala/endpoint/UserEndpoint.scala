@@ -37,12 +37,11 @@ final class UserEndpoint[R <: UserRepository with UUID](rootUri: String)
         }
 
       case req @ POST -> Root / `rootUri` =>
-        val user: ZIO[R, Throwable, User] =
-          req.as[CreateUserRequest].map(_.toDomain())
+        val res = req
+          .as[CreateUserRequest]
+          .map(_.toDomain()) >>= createUser
 
-        val xz = user.flatMap(createUser)
-
-        Created(xz)
+        Created(res)
     }
 
 }
