@@ -1,6 +1,5 @@
 package endpoint
 
-import domain.User
 import endpoint.json.JsonSupport
 import endpoint.request.CreateUserRequest
 import io.circe.generic.auto._
@@ -8,8 +7,8 @@ import org.http4s.HttpRoutes
 import org.http4s.dsl.Http4sDsl
 import org.http4s.dsl.impl.QueryParamDecoderMatcher
 import repository.UserRepository
+import scalaz.zio.TaskR
 import scalaz.zio.interop.catz._
-import scalaz.zio.{TaskR, ZIO}
 import service.UUID
 
 final class UserEndpoint[R <: UserRepository with UUID](rootUri: String)
