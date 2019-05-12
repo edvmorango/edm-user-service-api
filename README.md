@@ -20,6 +20,6 @@ Host: localhost:8080
 ```
 
 ```
-GET /user/v1/user?email=__*<some_mail>*__
+GET /user/v1/user?email=<some-email>
 Host: localhost:8080
 ```
